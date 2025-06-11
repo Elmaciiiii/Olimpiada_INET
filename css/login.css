@@ -259,30 +259,111 @@ body::before {
     text-decoration: underline;
 }
 
-.notification {
-    position: fixed;
-    top: 30px;
-    right: 30px;
-    background: linear-gradient(135deg, #4CAF50, #45a049);
-    color: white;
-    padding: 20px 30px;
-    border-radius: 15px;
-    z-index: 1000;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    transform: translateX(400px);
-    opacity: 0;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+/* Estilos mejorados para alertas */
+.alert {
+    position: relative;
+    padding: 16px 24px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    animation: slideIn 0.4s ease-out forwards;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid transparent;
+    transition: all 0.3s ease;
 }
 
-.notification.show {
-    transform: translateX(0);
+.alert::before {
+    content: '';
+    display: block;
+    width: 22px;
+    height: 22px;
+    margin-right: 12px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.alert-error {
+    background-color: #ffebee;
+    color: #c62828;
+    border-left-color: #ef5350;
+}
+
+.alert-error::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23c62828' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z'/%3E%3C/svg%3E");
+}
+
+.alert-success {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border-left-color: #4caf50;
+}
+
+.alert-success::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%232e7d32' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z'/%3E%3C/svg%3E");
+}
+
+.alert-info {
+    background-color: #e3f2fd;
+    color: #1565c0;
+    border-left-color: #2196f3;
+}
+
+.alert-info::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%231565c0' viewBox='0 0 24 24'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z'/%3E%3C/svg%3E");
+}
+
+/* Efecto de cierre */
+.alert-close {
+    margin-left: auto;
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    padding: 0 0 0 12px;
+}
+
+.alert-close:hover {
     opacity: 1;
 }
 
-.notification.error {
-    background: linear-gradient(135deg, #f44336, #d32f2f);
+/* Animaciones */
+@keyframes slideIn {
+    from {
+        transform: translateX(30px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateX(30px);
+        margin-bottom: 0;
+        padding-top: 0;
+        padding-bottom: 0;
+        height: 0;
+        overflow: hidden;
+    }
+}
+
+/* Para cerrar la alerta */
+.alert.hide {
+    animation: fadeOut 0.4s ease-out forwards;
 }
 
 .social-login {
