@@ -104,10 +104,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </form>
                 
                 <div class="form-footer">
-                    ¿Olvidaste tu contraseña? <a href="#" onclick="forgotPassword()">Recuperar</a>
-                </div>
-                
-                <div class="form-footer">
                     ¿No tienes una cuenta? <a href="register.php">Regístrate aquí</a>
                 </div>
             </div>

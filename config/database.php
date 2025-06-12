@@ -92,6 +92,99 @@ function initializeDatabase($conn) {
         return false;
     }
     
+    // Crear tabla de categorías
+    $sql = "CREATE TABLE IF NOT EXISTS categorias (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nombre VARCHAR(100) NOT NULL,
+        descripcion TEXT DEFAULT NULL,
+        icono VARCHAR(50) DEFAULT NULL,
+        activo TINYINT(1) DEFAULT 1,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+    
+    if ($conn->query($sql) === FALSE) {
+        error_log("Error al crear la tabla categorias: " . $conn->error);
+        return false;
+    }
+    
+    // Insertar categorías por defecto si no existen
+    $result = $conn->query("SELECT COUNT(*) as count FROM categorias");
+    if ($result && $result->fetch_assoc()['count'] == 0) {
+        $insertCategorias = $conn->query("INSERT INTO categorias (nombre, descripcion, icono) VALUES 
+            ('Hoteles', 'Alojamientos y hospedajes', '🏨'),
+            ('Paquetes Turísticos', 'Paquetes completos de viaje', '🎒'),
+            ('Transporte', 'Servicios de transporte turístico', '🚌'),
+            ('Actividades', 'Actividades y excursiones', '🏃‍♂️'),
+            ('Gastronomía', 'Experiencias gastronómicas', '🍽️'),
+            ('Aventura', 'Turismo de aventura y deportes', '🧗‍♂️')");
+            
+        if ($insertCategorias === FALSE) {
+            error_log("Error al insertar categorías por defecto: " . $conn->error);
+            return false;
+        }
+    }
+    
+    // Crear tabla de tipos de paquete
+    $sql = "CREATE TABLE IF NOT EXISTS tipos_paquete (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nombre VARCHAR(50) NOT NULL,
+        descripcion TEXT DEFAULT NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+    
+    if ($conn->query($sql) === FALSE) {
+        error_log("Error al crear la tabla tipos_paquete: " . $conn->error);
+        return false;
+    }
+    
+    // Insertar tipos de paquete por defecto si no existen
+    $result = $conn->query("SELECT COUNT(*) as count FROM tipos_paquete");
+    if ($result && $result->fetch_assoc()['count'] == 0) {
+        $insertTipos = $conn->query("INSERT INTO tipos_paquete (nombre, descripcion) VALUES 
+            ('Individual', 'Paquete para una persona'),
+            ('Pareja', 'Paquete para dos personas'),
+            ('Familiar', 'Paquete para familias con niños'),
+            ('Grupo', 'Paquete para grupos grandes'),
+            ('Corporativo', 'Paquete para empresas y eventos corporativos'),
+            ('Luna de Miel', 'Paquete especial para parejas recién casadas')");
+            
+        if ($insertTipos === FALSE) {
+            error_log("Error al insertar tipos de paquete por defecto: " . $conn->error);
+            return false;
+        }
+    }
+    
+    // Crear tabla de productos
+    $sql = "CREATE TABLE IF NOT EXISTS productos (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        nombre VARCHAR(200) NOT NULL,
+        descripcion TEXT NOT NULL,
+        descripcion_corta VARCHAR(300) DEFAULT NULL,
+        precio DECIMAL(10,2) NOT NULL,
+        categoria_id INT NOT NULL,
+        tipo_paquete_id INT DEFAULT NULL,
+        destino VARCHAR(100) NOT NULL,
+        duracion_dias INT DEFAULT NULL,
+        capacidad_min INT DEFAULT 1,
+        capacidad_max INT DEFAULT NULL,
+        incluye TEXT DEFAULT NULL,
+        no_incluye TEXT DEFAULT NULL,
+        imagen_principal VARCHAR(255) DEFAULT NULL,
+        galeria_imagenes TEXT DEFAULT NULL,
+        disponible TINYINT(1) DEFAULT 1,
+        destacado TINYINT(1) DEFAULT 0,
+        fecha_inicio DATE DEFAULT NULL,
+        fecha_fin DATE DEFAULT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (categoria_id) REFERENCES categorias(id) ON DELETE CASCADE,
+        FOREIGN KEY (tipo_paquete_id) REFERENCES tipos_paquete(id) ON DELETE SET NULL
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
+    
+    if ($conn->query($sql) === FALSE) {
+        error_log("Error al crear la tabla productos: " . $conn->error);
+        return false;
+    }
+    
     return true;
 }
 
