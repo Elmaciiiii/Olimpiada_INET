@@ -438,7 +438,7 @@ $conn->close();
                 <div class="detalle-producto">
                     <div>
                         <strong><?php echo htmlspecialchars($detalle['nombre']); ?></strong>
-                        <p><?php echo htmlspecialchars($detalle['descripcion_corta']); ?></p>
+                        <p><?php echo htmlspecialchars($detalle['descripcion_corta'] ?? ''); ?></p>
                     </div>
                     <div>
                         <?php echo $detalle['cantidad']; ?> x $<?php echo number_format($detalle['precio_unitario'], 2); ?>

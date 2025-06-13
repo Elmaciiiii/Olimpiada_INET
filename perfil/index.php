@@ -109,7 +109,6 @@ $conn->close();
                         ?>
                     </p>
                     <p><strong>Miembro desde:</strong> <?php echo date('d/m/Y', strtotime($usuario['created_at'])); ?></p>
-                    <button class="btn-editar" onclick="mostrarFormularioEdicion()">Editar Perfil</button>
                 </div>
             </div>
 
