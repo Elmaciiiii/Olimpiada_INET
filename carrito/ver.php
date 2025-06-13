@@ -15,7 +15,7 @@ $conn = getDBConnection();
 $usuario_id = $_SESSION['user_id'];
 
 // Obtener items del carrito
-$query = "SELECT c.*, p.nombre, p.descripcion_corta, p.destino, p.duracion_dias, p.imagen_principal,
+$query = "SELECT c.*, p.nombre, p.destino, p.duracion_dias, p.imagen_principal,
                  cat.nombre as categoria_nombre, cat.icono as categoria_icono,
                  (c.cantidad * c.precio_unitario) as subtotal
           FROM carrito c
@@ -46,7 +46,7 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mi Carrito - Turismo Córdoba</title>
+    <title>Mi Carrito - Turismo INET</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -371,7 +371,7 @@ $conn->close();
     <div class="container">
         <header>
             <div class="logo">
-                <a href="../index.php" style="color: inherit; text-decoration: none;">CARRITO</a>
+                <a href="../index.php" style="color: inherit; text-decoration: none;">Turismo INET</a>
             </div>
             <div class="nav-buttons">
                 <?php if(isset($_SESSION['user_id'])): ?>
@@ -380,6 +380,9 @@ $conn->close();
                     </a>
                     <a href="../product/productos.php" class="nav-btn">
                         <i class="fas fa-box"></i> Productos
+                    </a>
+                    <a href="../perfil/" class="nav-btn">
+                        <i class="fas fa-user"></i> Perfil
                     </a>
                     <a href="../login_register/logout.php" class="nav-btn">
                         <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
@@ -424,8 +427,10 @@ $conn->close();
                                     <span>⏰ <?php echo $item['duracion_dias']; ?> día<?php echo $item['duracion_dias'] > 1 ? 's' : ''; ?></span>
                                 <?php endif; ?>
                             </div>
-                            <?php if ($item['descripcion_corta']): ?>
-                                <p style="color: #666; font-size: 0.9rem; margin: 10px 0;"><?php echo htmlspecialchars($item['descripcion_corta']); ?></p>
+                            <?php if (!empty($item['descripcion_corta'])): ?>
+                                <p style="color: #666; font-size: 0.9rem; margin: 10px 0;">
+                                    <?php echo htmlspecialchars($item['descripcion_corta']); ?>
+                                </p>
                             <?php endif; ?>
                             <div class="item-precio">$<?php echo number_format($item['precio_unitario'], 0, ',', '.'); ?> por persona</div>
                         </div>

@@ -126,9 +126,12 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Productos - Turismo Córdoba</title>
+    <title>Productos - Turismo INET</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="../css/productos.css">
     <style>
+        /* Estilos específicos para la barra de navegación */
         .nav-buttons {
             display: flex;
             gap: 15px;
@@ -136,27 +139,39 @@ $conn->close();
         }
         
         .nav-btn {
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            padding: 8px 15px;
-            border-radius: 20px;
-            color: white;
+            color: #2c2c2c;
+            text-decoration: none;
             font-weight: 500;
-            cursor: pointer;
+            padding: 10px 18px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 5px;
-            text-decoration: none;
-            transition: all 0.3s ease;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
         }
         
         .nav-btn:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.4);
             transform: translateY(-2px);
         }
         
-        .nav-btn span {
+        .nav-btn i {
             font-size: 1.1em;
+        }
+
+        .cart-count {
+            background: #ff4757;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7em;
+            margin-left: 5px;
         }
     </style>
 </head>
@@ -170,7 +185,7 @@ $conn->close();
     <div class="container">
         <header>
             <div class="logo">
-                <a href="../index.php" style="color: inherit; text-decoration: none;">PRODUCTOS</a>
+                <a href="../index.php" style="color: inherit; text-decoration: none;">Turismo INET</a>
             </div>
             <div class="nav-buttons">
                 <?php if(isset($_SESSION['user_id'])): ?>
@@ -179,6 +194,26 @@ $conn->close();
                     </a>
                     <a href="../carrito/ver.php" class="nav-btn">
                         <i class="fas fa-shopping-cart"></i> Carrito
+                        <?php
+                        // Contar items en el carrito
+                        $carrito_count = 0;
+                        if (isset($_SESSION['user_id'])) {
+                            $conn = getDBConnection();
+                            $count_query = "SELECT COUNT(*) as count FROM carrito WHERE usuario_id = ?";
+                            $stmt = $conn->prepare($count_query);
+                            $stmt->bind_param("i", $_SESSION['user_id']);
+                            $stmt->execute();
+                            $result = $stmt->get_result();
+                            $carrito_count = $result->fetch_assoc()['count'];
+                            $stmt->close();
+                            $conn->close();
+                        }
+                        if ($carrito_count > 0): ?>
+                            <span class="cart-count"><?php echo $carrito_count; ?></span>
+                        <?php endif; ?>
+                    </a>
+                    <a href="../perfil/" class="nav-btn">
+                        <i class="fas fa-user"></i> Perfil
                     </a>
                     <a href="../login_register/logout.php" class="nav-btn">
                         <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
@@ -300,19 +335,19 @@ $conn->close();
                                     <?php if ($producto['duracion_dias']): ?>
                                         <p class="duracion">⏰ <?php echo $producto['duracion_dias']; ?> día<?php echo $producto['duracion_dias'] > 1 ? 's' : ''; ?></p>
                                     <?php endif; ?>
-                                    <?php if ($producto['capacidad_min'] || $producto['capacidad_max']): ?>
+                                    <?php if (($producto['capacidad_min'] ?? '') || ($producto['capacidad_max'] ?? '')): ?>
                                         <p class="capacidad">
-                                            👥 <?php echo $producto['capacidad_min']; ?>
-                                            <?php echo $producto['capacidad_max'] ? ' - ' . $producto['capacidad_max'] : '+'; ?> personas
+                                            👥 <?php echo $producto['capacidad_min'] ?? ''; ?>
+                                            <?php echo ($producto['capacidad_max'] ?? '') ? ' - ' . $producto['capacidad_max'] : '+'; ?> personas
                                         </p>
                                     <?php endif; ?>
                                 </div>
 
                                 <p class="producto-descripcion">
-                                    <?php echo htmlspecialchars($producto['descripcion_corta'] ?: substr($producto['descripcion'], 0, 150) . '...'); ?>
+                                    <?php echo htmlspecialchars(($producto['descripcion_corta'] ?? '') ?: substr($producto['descripcion'], 0, 150) . '...'); ?>
                                 </p>
 
-                                <?php if ($producto['incluye']): ?>
+                                <?php if (($producto['incluye'] ?? '') !== ''): ?>
                                     <div class="incluye-preview">
                                         <strong>✅ Incluye:</strong>
                                         <p><?php echo htmlspecialchars(substr($producto['incluye'], 0, 100) . '...'); ?></p>
@@ -322,7 +357,7 @@ $conn->close();
 
                             <div class="producto-footer">
                                 <div class="precio">
-                                    <span class="precio-desde">Desde</span>
+<!-- ... -->
                                     <span class="precio-valor">$<?php echo number_format($producto['precio'], 0, ',', '.'); ?></span>
                                     <span class="precio-persona">por persona</span>
                                 </div>
@@ -441,5 +476,59 @@ $conn->close();
             });
         });
     </script>
+    <style>
+        .floating-shapes {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+        
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(5px);
+            animation: float 15s infinite ease-in-out;
+        }
+        
+        .shape-1 {
+            width: 300px;
+            height: 300px;
+            top: -100px;
+            right: -100px;
+            animation-delay: 0s;
+        }
+        
+        .shape-2 {
+            width: 200px;
+            height: 200px;
+            bottom: 50px;
+            left: -50px;
+            animation-delay: 5s;
+            animation-duration: 20s;
+        }
+        
+        .shape-3 {
+            width: 150px;
+            height: 150px;
+            top: 40%;
+            right: 10%;
+            animation-delay: 10s;
+            animation-duration: 25s;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(5deg);
+            }
+        }
+    </style>
 </body>
 </html>

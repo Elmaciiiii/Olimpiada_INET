@@ -10,7 +10,7 @@ $conn = getDBConnection();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Turismo Córdoba</title>
+    <title>Turismo INET</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="css/index.css">
     <style>
@@ -70,6 +70,8 @@ $conn = getDBConnection();
         /* Estilos para paquetes destacados */
         .paquetes-destacados {
             padding: 80px 0;
+            padding-left: 80px;
+            
             max-width: 100%;
             margin: 0 auto;
             width: 100%;
@@ -330,7 +332,7 @@ $conn = getDBConnection();
     <div class="container">
         <header>
             <div class="logo">
-                <a href="index.php" style="color: inherit; text-decoration: none;">INICIO</a>
+                <a href="index.php" style="color: inherit; text-decoration: none;">Turismo INET</a>
             </div>
             <div class="nav-buttons">
                 <?php if(isset($_SESSION['user_id'])): ?>
@@ -339,6 +341,9 @@ $conn = getDBConnection();
                     </a>
                     <a href="carrito/ver.php" class="nav-btn">
                         <i class="fas fa-shopping-cart"></i> Carrito
+                    </a>
+                    <a href="perfil/" class="nav-btn">
+                        <i class="fas fa-user"></i> Perfil
                     </a>
                     <a href="login_register/logout.php" class="nav-btn">
                         <i class="fas fa-sign-out-alt"></i> Cerrar Sesión

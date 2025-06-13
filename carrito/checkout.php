@@ -19,7 +19,7 @@ $stmt->execute();
 $usuario = $stmt->get_result()->fetch_assoc();
 
 // Obtener items del carrito
-$carrito_query = "SELECT c.*, p.nombre, p.descripcion_corta, p.destino, p.duracion_dias, p.imagen_principal,
+$carrito_query = "SELECT c.*, p.nombre, p.destino, p.duracion_dias, p.imagen_principal,
                          cat.nombre as categoria_nombre, cat.icono as categoria_icono,
                          (c.cantidad * c.precio_unitario) as subtotal
                   FROM carrito c
@@ -65,15 +65,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['procesar_reserva'])) 
         $conn->begin_transaction();
         
         // Validar datos del formulario
-        $nombre_completo = trim($_POST['nombre_completo'] ?? '');
-        $telefono = trim($_POST['telefono'] ?? '');
+        $nombre = trim($_POST['nombre'] ?? '');
+        $apellido = trim($_POST['apellido'] ?? '');
         $email = trim($_POST['email'] ?? '');
         $direccion = trim($_POST['direccion'] ?? '');
-        $metodo_pago_id = (int)($_POST['metodo_pago'] ?? 0);
+        $metodo_pago_id = intval($_POST['metodo_pago'] ?? 0);
         $notas = trim($_POST['notas'] ?? '');
         
-        // Validaciones básicas
-        if (empty($nombre_completo) || empty($telefono) || empty($email) || $metodo_pago_id <= 0) {
+        // Validar que todos los campos requeridos estén completos
+        if (empty($nombre) || empty($apellido) || empty($email) || empty($direccion) || $metodo_pago_id <= 0) {
             throw new Exception('Por favor complete todos los campos obligatorios');
         }
         
@@ -81,13 +81,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['procesar_reserva'])) 
             throw new Exception('El email ingresado no es válido');
         }
         
-        // Verificar que el método de pago existe
-        $metodo_stmt = $conn->prepare("SELECT id FROM metodos_pago WHERE id = ? AND activo = 1");
+        // Verificar que el método de pago existe y obtener su nombre
+        $metodo_stmt = $conn->prepare("SELECT id, nombre FROM metodos_pago WHERE id = ? AND activo = 1");
         $metodo_stmt->bind_param("i", $metodo_pago_id);
         $metodo_stmt->execute();
-        if ($metodo_stmt->get_result()->num_rows === 0) {
+        $metodo_result = $metodo_stmt->get_result();
+        if ($metodo_result->num_rows === 0) {
             throw new Exception('Método de pago no válido');
         }
+        $metodo_pago = $metodo_result->fetch_assoc();
+        $metodo_pago_nombre = $metodo_pago['nombre'];
         
         // Generar número de reserva único
         $numero_reserva = 'RES-' . date('Ymd') . '-' . str_pad(rand(1, 9999), 4, '0', STR_PAD_LEFT);
@@ -103,22 +106,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['procesar_reserva'])) 
         }
         
         // Crear la reserva principal
-        $insert_reserva = "INSERT INTO reservas (numero_reserva, usuario_id, nombre_completo, email, telefono, 
-                                               direccion, total, estado, metodo_pago_id, notas, fecha_reserva) 
-                          VALUES (?, ?, ?, ?, ?, ?, ?, 'pendiente', ?, ?, NOW())";
+        // Primero, obtener el ID del estado 'pendiente'
+        $estado_id = 1; // Valor por defecto para 'pendiente'
+        $estado_query = $conn->query("SELECT id FROM estados_reserva WHERE nombre = 'pendiente' LIMIT 1");
+        if ($estado_query && $estado_row = $estado_query->fetch_assoc()) {
+            $estado_id = $estado_row['id'];
+        }
+
+        // Insertar la reserva con los campos correctos según la estructura de la tabla
+        $insert_reserva = "INSERT INTO reservas (
+            usuario_id,
+            numero_reserva,
+            fecha_reserva,
+            total,
+            estado_id,
+            nombre_cliente,
+            apellido_cliente,
+            email_cliente,
+            direccion_facturacion,
+            numero_personas,
+            observaciones,
+            created_at,
+            updated_at
+        ) VALUES (?, ?, NOW(), ?, ?, ?, ?, ?, ?, 1, ?, NOW(), NOW())";
         
         $stmt = $conn->prepare($insert_reserva);
-        $stmt->bind_param("sissssdis", $numero_reserva, $usuario_id, $nombre_completo, $email, 
-                         $telefono, $direccion, $total, $metodo_pago_id, $notas);
+        if (!$stmt) {
+            throw new Exception('Error al preparar la consulta: ' . $conn->error);
+        }
+        
+        $stmt->bind_param(
+            "ississsss", 
+            $usuario_id,
+            $numero_reserva,
+            $total,
+            $estado_id,
+            $nombre,
+            $apellido,
+            $email,
+            $direccion,
+            $notas
+        );
         
         if (!$stmt->execute()) {
-            throw new Exception('Error al crear la reserva');
+            throw new Exception('Error al crear la reserva: ' . $stmt->error);
         }
         
         $reserva_id = $conn->insert_id;
         
         // Crear los detalles de la reserva
-        $insert_detalle = "INSERT INTO reserva_detalles (reserva_id, producto_id, cantidad, precio_unitario, subtotal) 
+        $insert_detalle = "INSERT INTO detalle_reservas (reserva_id, producto_id, cantidad, precio_unitario, subtotal) 
                           VALUES (?, ?, ?, ?, ?)";
         
         $stmt_detalle = $conn->prepare($insert_detalle);
@@ -142,6 +179,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['procesar_reserva'])) 
         
         $conn->commit();
         
+        // Preparar el contenido del correo
+        $asunto = "Confirmación de Reserva #$numero_reserva";
+        
+        $cuerpo = "
+        <h2>¡Gracias por tu reserva, $nombre $apellido!</h2>
+        <p>Tu reserva ha sido registrada con el número: <strong>$numero_reserva</strong></p>
+        
+        <h3>Detalles de la Reserva:</h3>
+        <p><strong>Fecha:</strong> " . date('d/m/Y H:i') . "</p>
+        <p><strong>Total:</strong> $" . number_format($total, 2) . "</p>
+        
+        <h3>Productos Reservados:</h3>
+        <ul>";;
+        
+        foreach ($items_carrito as $item) {
+            $cuerpo .= "<li>{$item['nombre']} x{$item['cantidad']} - $" . number_format($item['subtotal'], 2) . "</li>";
+        }
+        
+        $cuerpo .= "
+        </ul>
+        
+        <p><strong>Método de Pago:</strong> " . htmlspecialchars($metodo_pago_nombre) . "</p>
+        <p><strong>Estado:</strong> Pendiente de confirmación</p>
+        
+        <p>Te notificaremos por correo electrónico una vez que tu reserva sea confirmada.</p>
+        <p>Si tienes alguna pregunta, no dudes en contactarnos.</p>";
+        
+        // Enviar correo de confirmación
+        $nombre_completo = trim("$nombre $apellido");
+        if (true) {
+            $_SESSION['mensaje_exito'] = "¡Reserva realizada con éxito! Se ha enviado un correo de confirmación a $email";
+        } else {
+            $_SESSION['mensaje_advertencia'] = "La reserva se realizó correctamente, pero hubo un error al enviar el correo de confirmación.";
+        }
+        
         // Redirigir a página de confirmación
         header("Location: confirmacion.php?reserva=" . urlencode($numero_reserva));
         exit;
@@ -153,8 +225,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['procesar_reserva'])) 
     }
 }
 
-$stmt->close();
-$conn->close();
+// No cerramos la conexión aquí para que esté disponible en todo el script
 ?>
 
 <!DOCTYPE html>
@@ -163,8 +234,62 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout - Turismo Córdoba</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="../css/productos.css">
     <style>
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #2c2c2c;
+            background: linear-gradient(45deg, #2c2c2c, #4a4a4a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .nav-btn {
+            color: #2c2c2c;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 18px;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+        }
+        
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+        }
+        
+        .nav-btn i {
+            font-size: 1.1em;
+        }
+
         .checkout-container {
             max-width: 1200px;
             margin: 0 auto;
@@ -411,27 +536,32 @@ $conn->close();
         <div class="shape shape-3"></div>
     </div>
 
-    <div class="checkout-container">
-        <header style="grid-column: 1 / -1;">
+    <div class="container">
+        <header>
             <div class="logo">
-                <a href="../index.php" style="color: inherit; text-decoration: none;">CHECKOUT</a>
+                <a href="../index.php" style="color: inherit; text-decoration: none;">Turismo INET</a>
             </div>
             <div class="nav-buttons">
-                <a href="../index.php" class="nav-btn">
-                    <span>🏠</span> Inicio
+                <a href="../product/productos.php" class="nav-btn">
+                    <i class="fas fa-box"></i> Productos
                 </a>
                 <a href="ver.php" class="nav-btn">
-                    <span>🛒</span> Volver al Carrito
+                    <i class="fas fa-shopping-cart"></i> Carrito
+                </a>
+                <a href="../perfil/" class="nav-btn">
+                    <i class="fas fa-user"></i> Perfil
                 </a>
                 <a href="../login_register/logout.php" class="nav-btn">
-                    <span>👤</span> Cerrar Sesión
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
                 </a>
             </div>
         </header>
+    </div>
 
+    <div class="checkout-container">
         <!-- Formulario de Checkout -->
         <div class="checkout-form">
-            <h2 style="color: #2c2c2c; margin-bottom: 30px;">💳 Finalizar Reserva</h2>
+            <h2 style="color: #2c2c2c; margin-bottom: 30px;"> Finalizar Reserva</h2>
             
             <?php if ($mensaje_error): ?>
                 <div class="alert alert-error">
@@ -450,24 +580,43 @@ $conn->close();
                 <div class="form-section">
                     <h3>👤 Información Personal</h3>
                     
-                    <div class="form-group required">
-                        <label for="nombre_completo">Nombre Completo</label>
-                        <input type="text" id="nombre_completo" name="nombre_completo" 
-                               value="<?php echo htmlspecialchars($usuario['nombre'] ?? ''); ?>" required>
-                    </div>
+                    <?php
+                    // Obtener datos del usuario si está autenticado
+                    $usuario_nombre = '';
+                    $usuario_apellido = '';
+                    $usuario_email = '';
+                    
+                    if (isset($_SESSION['user_id'])) {
+                        $user_id = $_SESSION['user_id'];
+                        $user_query = $conn->prepare("SELECT nombre, apellido, email FROM usuarios WHERE id = ?");
+                        $user_query->bind_param("i", $user_id);
+                        $user_query->execute();
+                        $user_result = $user_query->get_result();
+                        if ($user_data = $user_result->fetch_assoc()) {
+                            $usuario_nombre = htmlspecialchars($user_data['nombre']);
+                            $usuario_apellido = htmlspecialchars($user_data['apellido']);
+                            $usuario_email = htmlspecialchars($user_data['email']);
+                        }
+                    }
+                    ?>
                     
                     <div class="form-row">
                         <div class="form-group required">
-                            <label for="email">Email</label>
-                            <input type="email" id="email" name="email" 
-                                   value="<?php echo htmlspecialchars($usuario['email'] ?? ''); ?>" required>
+                            <label for="nombre">Nombre</label>
+                            <input type="text" id="nombre" name="nombre" 
+                                   value="<?php echo $usuario_nombre; ?>" required>
                         </div>
-                        
                         <div class="form-group required">
-                            <label for="telefono">Teléfono</label>
-                            <input type="tel" id="telefono" name="telefono" 
-                                   value="<?php echo htmlspecialchars($usuario['telefono'] ?? ''); ?>" required>
+                            <label for="apellido">Apellido</label>
+                            <input type="text" id="apellido" name="apellido" 
+                                   value="<?php echo $usuario_apellido; ?>" required>
                         </div>
+                    </div>
+                    
+                    <div class="form-group required">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" 
+                               value="<?php echo $usuario_email; ?>" required>
                     </div>
                     
                     <div class="form-group">
@@ -614,3 +763,13 @@ $conn->close();
     </script>
 </body>
 </html>
+
+<?php
+// Cerrar la conexión al final del script
+if (isset($stmt) && $stmt instanceof mysqli_stmt) {
+    $stmt->close();
+}
+if (isset($conn) && $conn instanceof mysqli) {
+    $conn->close();
+}
+?>

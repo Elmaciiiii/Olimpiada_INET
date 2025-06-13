@@ -68,13 +68,13 @@ $conn->close();
                 </div>
             <?php endif; ?>
             
-            <?php if ($producto['capacidad_min'] || $producto['capacidad_max']): ?>
+            <?php if (($producto['capacidad_min'] ?? '') || ($producto['capacidad_max'] ?? '')): ?>
                 <div class="info-item">
                     <span class="icono">👥</span>
                     <span class="label">Capacidad:</span>
                     <span class="valor">
-                        <?php echo $producto['capacidad_min']; ?>
-                        <?php echo $producto['capacidad_max'] ? ' - ' . $producto['capacidad_max'] : '+'; ?> personas
+                        <?php echo $producto['capacidad_min'] ?? ''; ?>
+                        <?php echo ($producto['capacidad_max'] ?? '') ? ' - ' . $producto['capacidad_max'] : '+'; ?> personas
                     </span>
                 </div>
             <?php endif; ?>
@@ -98,12 +98,12 @@ $conn->close();
             <p><?php echo nl2br(htmlspecialchars($producto['descripcion'])); ?></p>
         </div>
 
-        <?php if ($producto['incluye']): ?>
+        <?php if (!empty($producto['incluye'])): ?>
             <div class="incluye-detalle">
                 <h3>✅ Qué incluye</h3>
                 <div class="incluye-lista">
                     <?php
-                    $incluye_items = explode("\n", $producto['incluye']);
+                    $incluye_items = explode("\n", $producto['incluye'] ?? '');
                     foreach ($incluye_items as $item) {
                         $item = trim($item);
                         if (!empty($item)) {
@@ -115,12 +115,12 @@ $conn->close();
             </div>
         <?php endif; ?>
 
-        <?php if ($producto['no_incluye']): ?>
+        <?php if (!empty($producto['no_incluye'])): ?>
             <div class="no-incluye-detalle">
                 <h3>❌ Qué NO incluye</h3>
                 <div class="no-incluye-lista">
                     <?php
-                    $no_incluye_items = explode("\n", $producto['no_incluye']);
+                    $no_incluye_items = explode("\n", $producto['no_incluye'] ?? '');
                     foreach ($no_incluye_items as $item) {
                         $item = trim($item);
                         if (!empty($item)) {

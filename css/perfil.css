@@ -1,0 +1,560 @@
+:root {
+    --primary-color: #4CAF50;
+    --secondary-color: #45a049;
+    --danger-color: #f44336;
+    --warning-color: #ff9800;
+    --text-color: #333;
+    --light-gray: #f5f5f5;
+    --border-color: #ddd;
+    --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #7db899 0%, #6ba085 50%, #5a8871 100%);
+    min-height: 100vh;
+    color: var(--text-color);
+    line-height: 1.6;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+/* HEADER ESTILO INDEX */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px 0;
+    margin-bottom: 50px;
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 20px 40px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.logo {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2c2c2c;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    background: linear-gradient(45deg, #2c2c2c, #4a4a4a);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.nav-buttons {
+    display: flex;
+    gap: 20px;
+}
+
+.nav-btn {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+    color: #2c2c2c;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2));
+    color: #43b06e;
+}
+
+.nav-btn.active {
+    background: linear-gradient(135deg, #e3ffe6 0%, #b8ffec 100%);
+    color: #43b06e;
+    border: 2px solid #43b06e;
+}
+
+/* Fin header estilo index */
+
+/* Estilos del perfil */
+.perfil-container {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.perfil-info, .pedidos-pendientes {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.perfil-info h1 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    font-size: 2rem;
+    text-align: center;
+}
+
+.info-card {
+    background: rgba(255, 255, 255, 0.7);
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.info-card h2 {
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+    color: var(--primary-color);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+}
+
+.info-card p {
+    margin-bottom: 10px;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Estilos de los pedidos */
+.pedidos-pendientes h2 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+    text-align: center;
+    position: relative;
+    padding-bottom: 10px;
+}
+
+.pedidos-pendientes h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 3px;
+    background: var(--primary-color);
+    border-radius: 3px;
+}
+
+.pedidos-lista {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.pedido-card {
+    display: flex;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.pedido-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.pedido-imagen {
+    width: 200px;
+    height: 200px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.pedido-imagen img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.pedido-card:hover .pedido-imagen img {
+    transform: scale(1.05);
+}
+
+.pedido-detalles {
+    flex: 1;
+    padding: 20px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.pedido-detalles h3 {
+    margin: 0 0 10px 0;
+    color: var(--text-color);
+    font-size: 1.4rem;
+}
+
+.precio {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin: 5px 0;
+}
+
+.acciones-pedido {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Botones */
+.btn {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.95rem;
+}
+
+.btn i {
+    font-size: 1em;
+}
+
+.btn-historial {
+    background: linear-gradient(90deg, #43e97b 0%, #38f9d7 100%);
+    color: #fff;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s;
+    box-shadow: 0 2px 8px rgba(67, 233, 123, 0.15);
+    margin-top: 18px;
+    margin-bottom: 0;
+}
+
+.btn-historial:hover {
+    background: linear-gradient(90deg, #38f9d7 0%, #43e97b 100%);
+    box-shadow: 0 4px 16px rgba(67, 233, 123, 0.22);
+}
+
+.btn-editar {
+    background: linear-gradient(90deg, #43e97b 0%, #38f9d7 100%);
+    color: #fff;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s;
+    box-shadow: 0 2px 8px rgba(67, 233, 123, 0.15);
+    margin-top: 18px;
+    margin-bottom: 0;
+}
+
+.btn-editar:hover {
+    background: linear-gradient(90deg, #38f9d7 0%, #43e97b 100%);
+    box-shadow: 0 4px 16px rgba(67, 233, 123, 0.22);
+}
+
+.info-card {
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 4px 24px rgba(67, 233, 123, 0.07);
+    padding: 32px 26px 24px 26px;
+    margin-bottom: 0;
+    margin-top: 10px;
+    max-width: 440px;
+    width: 100%;
+    border: 1px solid #e4f7ec;
+}
+
+.info-card h2 {
+    color: #43b06e;
+    font-size: 1.35rem;
+    margin-bottom: 18px;
+    font-weight: 700;
+}
+
+.info-card p {
+    color: #222;
+    font-size: 1.08rem;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #e4f7ec;
+    padding-bottom: 7px;
+    font-weight: 500;
+}
+
+.info-card p:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.info-card strong {
+    color: #43b06e;
+}
+
+.btn-eliminar {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.btn-comprar {
+    background-color: var(--primary-color);
+    color: white;
+    text-decoration: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    display: inline-block;
+    margin-top: 15px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.btn-comprar:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-guardar {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 15px;
+    width: 100%;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.btn-guardar:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+}
+
+.btn-cancelar {
+    background-color: #e0e0e0;
+    color: #333;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-right: 10px;
+    transition: all 0.3s ease;
+}
+
+.btn-cancelar:hover {
+    background-color: #d0d0d0;
+}
+
+.btn-eliminar-confirmar {
+    background-color: var(--danger-color);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-eliminar-confirmar:hover {
+    background-color: #d32f2f;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    animation: modalFadeIn 0.3s ease-out;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.modal h2 {
+    margin-top: 0;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px;
+    cursor: pointer;
+    color: #666;
+    transition: color 0.3s ease;
+}
+
+.close:hover {
+    color: #333;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #555;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.form-group input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+}
+
+.modal-acciones {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+/* Sin pedidos */
+.sin-pedidos {
+    text-align: center;
+    padding: 40px 20px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.sin-pedidos i {
+    font-size: 3.5rem;
+    color: #ccc;
+    margin-bottom: 15px;
+    display: block;
+}
+
+.sin-pedidos p {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 20px;
+}
+
+/* Animación para eliminar */
+@keyframes fadeOut {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-20px); }
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .perfil-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .pedido-card {
+        flex-direction: column;
+    }
+    
+    .pedido-imagen {
+        width: 100%;
+        height: 200px;
+    }
+}
+
+@media (max-width: 576px) {
+    .pedido-card {
+        flex-direction: column;
+    }
+    
+    .pedido-imagen {
+        height: 180px;
+    }
+    
+    .acciones-pedido {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+    }
+    
+    .modal-acciones {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .btn-cancelar, .btn-eliminar-confirmar {
+        width: 100%;
+        margin: 5px 0;
+    }
+}
