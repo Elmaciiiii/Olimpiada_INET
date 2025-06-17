@@ -2,10 +2,10 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_NAME', 'olimpiada_inet');
+define('DB_HOST', 'sql300.infinityfree.com');
+define('DB_USER', 'if0_39228166');
+define('DB_PASS', '5YrrPCE4SlV');
+define('DB_NAME', 'if0_39228166_olimpiada_inet');
 
 function getDBConnection() {
     // Primero intentar conectar sin seleccionar base de datos
