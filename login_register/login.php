@@ -36,8 +36,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['user_email'] = $user['email'];
                 $_SESSION['user_role'] = $user['rol_id'];
                 
-                // Redirigir al dashboard o página principal
-                header('Location: ../index.php');
+                // Redirigir según el rol del usuario
+                if ($user['rol_id'] == 2) {
+                    header('Location: ../admin/admin.php');
+                } elseif ($user['rol_id'] == 1) {
+                    header('Location: ../index.php');
+                } else {
+                    // Rol desconocido, redirigir a página por defecto
+                    header('Location: ../index.php');
+                }
                 exit();
             } else {
                 $error = 'Credenciales inválidas';

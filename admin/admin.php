@@ -6,6 +6,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     header('Content-Type: application/json');
     
     switch ($_POST['action']) {
+        case 'obtener_producto':
+            $producto = obtenerProductoPorId($pdo, $_POST['id']);
+            echo json_encode(['success' => !!$producto, 'producto' => $producto]);
+            exit;
+        case 'actualizar_producto':
+            $resultado = actualizarProducto($pdo, $_POST);
+            echo json_encode(['success' => $resultado]);
+            exit;
         case 'guardar_producto':
             $resultado = guardarProducto($pdo, $_POST);
             echo json_encode(['success' => $resultado]);
@@ -1062,7 +1070,7 @@ select.form-control {
                     </label>
                 </div>
 
-                <button type="submit" class="btn btn-success">Guardar Paquete</button>
+                <button type="submit" class="btn btn-success">Guardar Paquete</button> <!-- El texto se actualizará dinámicamente en modo edición -->
             </form>
         </div>
 
@@ -1479,7 +1487,12 @@ ALTER TABLE productos ADD COLUMN disponible TINYINT(1) DEFAULT 1;
             
             const formData = new FormData(this);
             const data = Object.fromEntries(formData.entries());
-            data.action = 'guardar_producto';
+            if (typeof editandoProductoId !== 'undefined' && editandoProductoId) {
+                data.action = 'actualizar_producto';
+                data.id = editandoProductoId;
+            } else {
+                data.action = 'guardar_producto';
+            }
             data.disponible = document.getElementById('disponible').checked ? 1 : 0;
             data.destacado = document.getElementById('destacado').checked ? 1 : 0;
             
@@ -1533,9 +1546,32 @@ ALTER TABLE productos ADD COLUMN disponible TINYINT(1) DEFAULT 1;
             }
         }
 
-        // Función para editar producto (placeholder)
+        let editandoProductoId = null;
+        // Función para editar producto
         function editarProducto(id) {
-            mostrarMensaje('Función de edición en desarrollo', 'warning');
+            enviarAjax({ action: 'obtener_producto', id: id }).then(response => {
+                if (response.success && response.producto) {
+                    const p = response.producto;
+                    document.getElementById('nombre').value = p.nombre;
+                    document.getElementById('descripcion').value = p.descripcion;
+                    document.getElementById('precio').value = p.precio;
+                    document.getElementById('categoria').value = p.categoria_id;
+                    document.getElementById('tipo_paquete').value = p.tipo_paquete_id;
+                    document.getElementById('destino').value = p.destino;
+                    document.getElementById('duracion').value = p.duracion_dias;
+                    document.getElementById('servicios_incluidos').value = p.servicios_incluidos || '';
+                    document.getElementById('servicios_no_incluidos').value = p.servicios_no_incluidos || '';
+                    document.getElementById('disponible').checked = p.disponible == 1;
+                    document.getElementById('destacado').checked = p.destacado == 1;
+                    document.getElementById('fecha_inicio').value = p.fecha_inicio || '';
+                    document.getElementById('fecha_fin').value = p.fecha_fin || '';
+                    editandoProductoId = p.id;
+                    document.querySelector('#form-producto button[type="submit"]').textContent = 'Actualizar Paquete';
+                    document.querySelector('[data-section="agregar-producto"]').click();
+                } else {
+                    mostrarMensaje('No se pudo cargar el paquete', 'danger');
+                }
+            });
         }
 
         // Función para confirmar pedido

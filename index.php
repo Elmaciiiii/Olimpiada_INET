@@ -460,9 +460,7 @@ $conn = getDBConnection();
                     <a href="perfil/" class="nav-btn">
                         <i class="fas fa-user-circle"></i> Perfil
                     </a>
-                     <a href="admin/admin.php" class="nav-btn">
-                        <i class="fas fa-cog"></i> Admin
-                    </a>
+ 
                     <a href="login_register/logout.php" class="nav-btn">
                         <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
                     </a>

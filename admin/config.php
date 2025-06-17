@@ -153,5 +153,41 @@ function actualizarEstadoReserva($pdo, $id, $estado) {
         return false;
     }
 }
+// Obtener un producto por id
+function obtenerProductoPorId($pdo, $id) {
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM productos WHERE id = :id");
+        $stmt->execute([':id' => $id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch(PDOException $e) {
+        return false;
+    }
+}
+
+// Actualizar producto
+function actualizarProducto($pdo, $datos) {
+    try {
+        $stmt = $pdo->prepare("UPDATE productos SET nombre = :nombre, descripcion = :descripcion, precio = :precio, categoria_id = :categoria_id, tipo_paquete_id = :tipo_paquete_id, destino = :destino, duracion_dias = :duracion_dias, servicios_incluidos = :servicios_incluidos, servicios_no_incluidos = :servicios_no_incluidos, disponible = :disponible, destacado = :destacado, fecha_inicio = :fecha_inicio, fecha_fin = :fecha_fin WHERE id = :id");
+        return $stmt->execute([
+            ':nombre' => $datos['nombre'],
+            ':descripcion' => $datos['descripcion'],
+            ':precio' => $datos['precio'],
+            ':categoria_id' => $datos['categoria_id'],
+            ':tipo_paquete_id' => $datos['tipo_paquete_id'],
+            ':destino' => $datos['destino'],
+            ':duracion_dias' => $datos['duracion_dias'] ?: null,
+            ':servicios_incluidos' => $datos['servicios_incluidos'] ?: null,
+            ':servicios_no_incluidos' => $datos['servicios_no_incluidos'] ?: null,
+            ':disponible' => $datos['disponible'] ? 1 : 0,
+            ':destacado' => $datos['destacado'] ? 1 : 0,
+            ':fecha_inicio' => $datos['fecha_inicio'] ?: null,
+            ':fecha_fin' => $datos['fecha_fin'] ?: null,
+            ':id' => $datos['id']
+        ]);
+    } catch(PDOException $e) {
+        return false;
+    }
+}
+
 ?>
 
