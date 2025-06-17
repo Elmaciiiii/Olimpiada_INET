@@ -1,9 +1,9 @@
 <?php
 // Configuración de la base de datos
-$host = 'localhost';
-$dbname = 'olimpiada_inet';
-$username = 'root';
-$password = '';
+$host = 'sql300.infinityfree.com';
+$dbname = 'if0_39228166_olimpiada_inet';
+$username = 'if0_39228166';
+$password = '5YrrPCE4SlV';
 
 try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password);
