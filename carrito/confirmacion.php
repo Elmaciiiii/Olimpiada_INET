@@ -468,11 +468,9 @@ $conn->close();
             <a href="../index.php" class="btn-volver">
                 <i class="fas fa-home"></i> Volver al Inicio
             </a>
-            <a href="../perfil/mis-reservas.php" class="btn-volver" style="background: #2196F3; margin-left: 15px;">
-                <i class="fas fa-list"></i> Ver Mis Reservas
-            </a>
         </div>
     </div>
+
     <script>
         // Efecto de movimiento suave para los elementos flotantes
         document.addEventListener('mousemove', function(e) {
